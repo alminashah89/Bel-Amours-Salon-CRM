@@ -1,0 +1,344 @@
+{
+  "entities": {
+    "SalonSettings": {
+      "title": "SalonSettings",
+      "description": "Global operational settings for Bél'Amour",
+      "type": "object",
+      "properties": {
+        "salonName": {
+          "type": "string",
+          "description": "The name of the saloon"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Primary phone contact"
+        },
+        "email": {
+          "type": "string",
+          "description": "Primary business email"
+        },
+        "address": {
+          "type": "string",
+          "description": "DHA block location details"
+        },
+        "taxRate": {
+          "type": "number",
+          "description": "Standard service sales tax multiplier"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Local currency denomination (e.g. PKR)"
+        },
+        "openHours": {
+          "type": "string",
+          "description": "Daily active schedule range"
+        },
+        "complaintNumber": {
+          "type": "string",
+          "description": "Complaint/Support contact phone number"
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "Primary business homepage"
+        },
+        "facebookLink": {
+          "type": "string",
+          "description": "Facebook brand link"
+        },
+        "instagramLink": {
+          "type": "string",
+          "description": "Instagram brand handles link"
+        },
+        "whatsappNumber": {
+          "type": "string",
+          "description": "WhatsApp messenger direct link or contact"
+        },
+        "receiptFooter": {
+          "type": "string",
+          "description": "Custom footer line shown at the bottom of customer receipts"
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "Dynamic base64 or URL file of customuploaded brand logo"
+        }
+      },
+      "required": ["salonName", "phone", "email", "address", "taxRate", "currency", "openHours"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Client profile representing contact, loyalty and notes",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique record identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Customer full name"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact cellular number"
+        },
+        "email": {
+          "type": "string",
+          "description": "Contact electronic mail address"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Specific styling requests, beverages or sensitive skin flags"
+        },
+        "totalSpending": {
+          "type": "number",
+          "description": "Aggregated historic revenue generated"
+        },
+        "visitCount": {
+          "type": "integer",
+          "description": "Aggregated total finalized visits"
+        },
+        "lastVisit": {
+          "type": "string",
+          "description": "ISO String representing last checkout"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of setup date"
+        }
+      },
+      "required": ["id", "name", "phone", "email", "notes", "totalSpending", "visitCount", "createdAt"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Menu services with prices and estimates",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique service identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Service menu name"
+        },
+        "category": {
+          "type": "string",
+          "description": "Menu classification (Hair, Skin, Massage, Nails)"
+        },
+        "price": {
+          "type": "number",
+          "description": "Base charging price"
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "description": "Service completion estimate in minutes"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether this service is currently available"
+        }
+      },
+      "required": ["id", "name", "category", "price", "durationMinutes", "isActive"]
+    },
+    "ReceiptItem": {
+      "title": "ReceiptItem",
+      "description": "Service line item chosen in POS deck",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Reference service ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of service purchased"
+        },
+        "price": {
+          "type": "number",
+          "description": "Lock-in unit price during checkout"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Selected frequency units"
+        }
+      },
+      "required": ["id", "name", "price", "quantity"]
+    },
+    "Receipt": {
+      "title": "Receipt",
+      "description": "POS checkout receipt log containing invoices and sales",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique checkout identification key"
+        },
+        "receiptNo": {
+          "type": "string",
+          "description": "Sequential TX-xxxxx display serial"
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Associated customer ID (null represent walk-in)"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Recorded customer name at billing"
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "Recorded customer phone at billing"
+        },
+        "customerEmail": {
+          "type": "string",
+          "description": "Recorded customer email"
+        },
+        "services": {
+          "type": "array",
+          "description": "Line-items checkout bundle"
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "Aggregate pre-discount value"
+        },
+        "discount": {
+          "type": "number",
+          "description": "Absolute deduction"
+        },
+        "tax": {
+          "type": "number",
+          "description": "Calculated local tax value"
+        },
+        "total": {
+          "type": "number",
+          "description": "Net finalized pay charge"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Chosen billing medium (Cash, Card, Tap-to-Pay, Gift Card, EasyPaisa, Bank Transfer)"
+        },
+        "receptionistId": {
+          "type": "string",
+          "description": "Logged in operator user ID"
+        },
+        "receptionistName": {
+          "type": "string",
+          "description": "Logged in operator full name"
+        },
+        "date": {
+          "type": "string",
+          "description": "ISO timestamp of purchase completion"
+        },
+        "staffName": {
+          "type": "string",
+          "description": "Assigned execution specialist stylist"
+        },
+        "cardNo": {
+          "type": "string",
+          "description": "Last four digits of credit card when applicable"
+        },
+        "onlineProvider": {
+          "type": "string",
+          "description": "E-wallet or bank identifier"
+        },
+        "transactionRef": {
+          "type": "string",
+          "description": "Reference number of online transfer"
+        },
+        "onlineAccountNo": {
+          "type": "string",
+          "description": "Recipient or sender cellular block account"
+        }
+      },
+      "required": ["id", "receiptNo", "customerName", "services", "subtotal", "discount", "tax", "total", "paymentMethod", "receptionistId", "receptionistName", "date"]
+    },
+    "Operator": {
+      "title": "Operator",
+      "description": "Credentials representation for secure portal logins",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Authorized user identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Operator full displaying name"
+        },
+        "email": {
+          "type": "string",
+          "description": "Portal verification address email"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["Manager", "Receptionist", "Stylist"],
+          "description": "Authorization level permissions"
+        }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Daily business expenses incurred by the salon",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique expense record identifier"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Staff Salary", "Electricity Bill", "Food/Tea Expense", "Cosmetic Purchases", "Shop Maintenance", "Other Expenses"],
+          "description": "Assigned classification or ledger category"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Total monetary amount spent"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Contextual notes or receipt references"
+        },
+        "date": {
+          "type": "string",
+          "description": "YYYY-MM-DD format log date"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "The operator name or identifier"
+        }
+      },
+      "required": ["id", "category", "amount", "notes", "date", "createdBy"]
+    }
+  },
+  "firestore": {
+    "/settings/salon": {
+      "schema": "SalonSettings",
+      "description": "Global operational settings for Bél'Amour"
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Client profile records"
+    },
+    "/services/{serviceId}": {
+      "schema": "Service",
+      "description": "Menu items and rates"
+    },
+    "/receipts/{receiptId}": {
+      "schema": "Receipt",
+      "description": "Billing invoice history logs"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Receipt",
+      "description": "Billing invoice history logs mirror"
+    },
+    "/operators/{operatorId}": {
+      "schema": "Operator",
+      "description": "Operational manager logs and roles"
+    },
+    "/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Incurred daily operational expenses"
+    }
+  }
+}

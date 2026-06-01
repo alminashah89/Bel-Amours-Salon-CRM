@@ -1,0 +1,119 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Luxurious Gold Accents mapping the logo theme color */
+  --color-gold-50: #FDFCFB;
+  --color-gold-100: #F9F6F0;
+  --color-gold-200: #E5E2DD;
+  --color-gold-300: #D4AF37;
+  --color-gold-400: #C5A059;
+  --color-gold-500: #C5A059;
+  --color-gold-600: #B48A30;
+  --color-gold-700: #9D7422;
+  --color-gold-800: #7E5B18;
+  --color-gold-900: #4B330F;
+
+  /* Custom overrides for slate/stone matching to map standard templates to Clean Premium Cream, Gold & Espresso Brown logo theme */
+  --color-stone-50: #FCF8E3;     /* Canvas background (soft brand cream #FCF8E3) */
+  --color-stone-100: #FFFDF4;    /* Light milk/cream background for elements */
+  --color-stone-150: #EDEAD6;    /* Main warm grey-sand border color */
+  --color-stone-200: #DCD8BE;    /* Soft beige borders */
+  --color-stone-250: #866F50;    /* Warm gold-brown description texts */
+  --color-stone-300: #C5B496;    /* Soft gold borders */
+  --color-stone-400: #866F50;    /* Captions/Muted label tones */
+  --color-stone-450: #544431;    /* Espresso brown headers */
+  --color-stone-500: #544431;    /* Deep cocoa body fallback */
+  --color-stone-600: #3D3120;    /* Espresso brown label controls */
+  --color-stone-650: #3D3120;    /* Solid espresso brown */
+  --color-stone-700: #3D3120;    /* Primary dark texts */
+  --color-stone-750: #3D3120;    /* Elements */
+  --color-stone-850: #3D3120;    /* Title text */
+  --color-stone-900: #3D3120;    /* Espresso brown active body text */
+  --color-stone-950: #241C12;    /* Dark cocoa card/contrast block */
+}
+
+/* Custom Scrollbars in Bél'Amour Logo theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C5B496;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #866F50;
+}
+
+/* Print Stylesheet for 80mm Thermal Receipts */
+@media print {
+  /* Completely hide normal CRM content and any notifications */
+  #crm-main-layout,
+  #global-toast-message,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Reset layout modal overlays so only the receipt prints */
+  #thermal-receipt-overlay {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #thermal-receipt-modal {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Style the thermal printed layout exactly for 80mm paper */
+  #thermal-receipt-print-area {
+    display: block !important;
+    position: relative !important;
+    margin: 0 auto !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 4mm !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Standard settings for thermal receipt prints or 80mm roll outputs */
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  /* Prevent backgrounds or colors from being distorted */
+  html, body {
+    background: white !important;
+    color: black !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

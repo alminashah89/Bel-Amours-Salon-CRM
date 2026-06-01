@@ -1,0 +1,6 @@
+{
+  "name": "Bel Amours Salon & Spa POS",
+  "description": "A premium, professional Salon & Spa Point of Sale and Customer Management system for Bel Amours, featuring billing, receipts, analytics, and service management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

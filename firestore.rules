@@ -1,0 +1,178 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net - Default Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 3. Primitive global validation helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // Entity validator: SalonSettings
+    function isValidSalonSettings(data) {
+      return data.keys().hasAll(['salonName', 'phone', 'email', 'address', 'taxRate', 'currency', 'openHours'])
+        && data.keys().size() <= 14
+        && data.salonName is string && data.salonName.size() <= 100
+        && data.phone is string && data.phone.size() <= 30
+        && data.email is string && data.email.size() <= 110
+        && data.address is string && data.address.size() <= 300
+        && data.taxRate is number && data.taxRate >= 0.0 && data.taxRate <= 1.0
+        && data.currency is string && data.currency.size() <= 10
+        && data.openHours is string && data.openHours.size() <= 100
+        && (!data.keys().hasAny(['complaintNumber']) || (data.complaintNumber is string && data.complaintNumber.size() <= 100))
+        && (!data.keys().hasAny(['websiteUrl']) || (data.websiteUrl is string && data.websiteUrl.size() <= 500))
+        && (!data.keys().hasAny(['facebookLink']) || (data.facebookLink is string && data.facebookLink.size() <= 500))
+        && (!data.keys().hasAny(['instagramLink']) || (data.instagramLink is string && data.instagramLink.size() <= 500))
+        && (!data.keys().hasAny(['whatsappNumber']) || (data.whatsappNumber is string && data.whatsappNumber.size() <= 100))
+        && (!data.keys().hasAny(['receiptFooter']) || (data.receiptFooter is string && data.receiptFooter.size() <= 1000))
+        && (!data.keys().hasAny(['logoUrl']) || (data.logoUrl is string && data.logoUrl.size() <= 2000000));
+    }
+
+    // Entity validator: Customer
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['id', 'name', 'phone', 'email', 'notes', 'totalSpending', 'visitCount', 'createdAt'])
+        && data.keys().size() <= 9 // account for lastVisit as premium optional field
+        && data.id is string && isValidId(data.id)
+        && data.name is string && data.name.size() <= 100 && data.name.size() > 0
+        && data.phone is string && data.phone.size() <= 30
+        && data.email is string && data.email.size() <= 100
+        && data.notes is string && data.notes.size() <= 1000
+        && data.totalSpending is number && data.totalSpending >= 0
+        && data.visitCount is int && data.visitCount >= 0
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    // Entity validator: Service
+    function isValidService(data) {
+      return data.keys().hasAll(['id', 'name', 'category', 'price', 'durationMinutes', 'isActive'])
+        && data.keys().size() == 6
+        && data.id is string && isValidId(data.id)
+        && data.name is string && data.name.size() <= 150 && data.name.size() > 0
+        && data.category is string && data.category.size() <= 50
+        && data.price is number && data.price >= 0
+        && data.durationMinutes is int && data.durationMinutes >= 0
+        && data.isActive is bool;
+    }
+
+    // Entity validator: Receipt
+    function isValidReceipt(data) {
+      return data.keys().hasAll(['id', 'receiptNo', 'customerName', 'services', 'subtotal', 'discount', 'tax', 'total', 'paymentMethod', 'receptionistId', 'receptionistName', 'date'])
+        && data.id is string && isValidId(data.id)
+        && data.receiptNo is string && data.receiptNo.size() <= 30
+        && data.customerName is string && data.customerName.size() <= 150
+        && data.services is list && data.services.size() <= 50
+        && data.subtotal is number && data.subtotal >= 0
+        && data.discount is number && data.discount >= 0
+        && data.tax is number && data.tax >= 0
+        && data.total is number && data.total >= 0
+        && data.paymentMethod is string && data.paymentMethod.size() <= 50
+        && data.receptionistId is string && isValidId(data.receptionistId)
+        && data.receptionistName is string && data.receptionistName.size() <= 150
+        && data.date is string && data.date.size() <= 50;
+    }
+
+    // Entity validator: Operator
+    function isValidOperator(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'role'])
+        && data.keys().size() == 4
+        && data.id is string && isValidId(data.id)
+        && data.name is string && data.name.size() <= 150
+        && data.email is string && data.email.size() <= 150
+        && (data.role == 'Manager' || data.role == 'Receptionist' || data.role == 'Stylist' || data.role == 'Admin' || data.role == 'Cashier');
+    }
+
+    // Entity validator: Expense
+    function isValidExpense(data) {
+      return data.keys().hasAll(['id', 'category', 'amount', 'notes', 'date', 'createdBy'])
+        && data.keys().size() == 6
+        && data.id is string && isValidId(data.id)
+        && (data.category == 'Staff Salary' || data.category == 'Electricity Bill' || data.category == 'Food/Tea Expense' || data.category == 'Cosmetic Purchases' || data.category == 'Shop Maintenance' || data.category == 'Other Expenses' || data.category is string)
+        && data.amount is number && data.amount >= 0
+        && data.notes is string && data.notes.size() <= 1000
+        && data.date is string && data.date.size() <= 50
+        && data.createdBy is string && data.createdBy.size() <= 150;
+    }
+
+    // 4. Secure matched collections path logic
+    match /settings/salon {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && getUserRole() != 'Cashier' && isValidSalonSettings(incoming());
+    }
+
+    match /customers/{customerId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidCustomer(incoming()) && customerId == incoming().id;
+      allow update: if isSignedIn() && isValidCustomer(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'email', 'notes', 'totalSpending', 'visitCount', 'lastVisit'])
+      );
+      allow delete: if isSignedIn();
+    }
+
+    match /services/{serviceId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && getUserRole() != 'Cashier' && isValidService(incoming()) && serviceId == incoming().id;
+      allow delete: if isSignedIn() && getUserRole() != 'Cashier';
+    }
+
+    match /receipts/{receiptId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidReceipt(incoming()) && receiptId == incoming().id;
+      allow update: if false; // Receipts are immutable terminal state auditing records
+      allow delete: if isSignedIn() && getUserRole() != 'Cashier'; // Allow database sweeping for receipts (blocked for cashiers)
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidReceipt(incoming()) && transactionId == incoming().id;
+      allow update: if false; // Transactions are immutable terminal state auditing records
+      allow delete: if isSignedIn() && getUserRole() != 'Cashier'; // Allow database sweeping for transactions (blocked for cashiers)
+    }
+
+    match /operators/{operatorId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidOperator(incoming()) && operatorId == incoming().id;
+      allow update: if isSignedIn() && isValidOperator(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'email', 'role'])
+      );
+      allow delete: if isSignedIn() && getUserRole() != 'Cashier';
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidOperator(incoming()) && userId == incoming().id;
+      allow update: if isSignedIn() && userId == request.auth.uid && isValidOperator(incoming());
+      allow delete: if isSignedIn() && getUserRole() != 'Cashier';
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && getUserRole() != 'Cashier' && isValidExpense(incoming()) && expenseId == incoming().id;
+      allow delete: if isSignedIn() && getUserRole() != 'Cashier';
+    }
+
+  }
+}
